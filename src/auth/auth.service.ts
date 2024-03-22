@@ -32,9 +32,8 @@ export class AuthService {
         await this.userRepository.save(user);
         const token = this.jwtService.sign({ id: user.id });
 
-        return token;
+        return {token};
     }
-
 
     async signIn(signInDto: userCreated): Promise<any> {
         const { email, password } = signInDto;
