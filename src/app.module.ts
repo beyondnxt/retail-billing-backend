@@ -15,6 +15,9 @@ import { Role } from './role/entity/role.entity';
 import { AuthenticationMiddleware } from './common/middleware/authentication.middleware';
 import { RequestService } from './common/request.service';
 import { Product } from './product/entity/product.entity';
+import { Inventory } from './inventory/entity/inventory.entity';
+import { Billing } from './billing/entity/billing.entity';
+import { Category } from './category/entity/category.entity';
 
 @Module({
   imports: [ConfigModule.forRoot(),
@@ -27,7 +30,7 @@ import { Product } from './product/entity/product.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Role, Product],
+        entities: [User, Role, Product, Inventory, Billing, Category],
         synchronize: true,
       }),
       inject: [ConfigService],

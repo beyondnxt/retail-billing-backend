@@ -1,36 +1,57 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './entity/product.entity';
 import { CreateProductDto } from './dto/product.dto';
 
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
   @Get()
-  async findAll(): Promise<Product[]> {
-    return this.productService.findAll();
+  async findAll(@Query('page') page: number, @Query('limit') limit: number): Promise<{ data: Product[]; total: number }> {
+    try {
+      return this.productService.findAll(page, limit);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get(':id')
   async findById(@Param('id') id: number): Promise<Product> {
-    return this.productService.findById(id);
+    try {
+      return this.productService.findById(id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Post()
-  async create(@Body() createProductDto: CreateProductDto,@Req() req: Request): Promise<Product> {
-    const userId = req.headers['userid'];
-    return this.productService.create(createProductDto,userId);
+  async create(@Body() createProductDto: CreateProductDto, @Req() req: Request): Promise<Product> {
+    try {
+      const userId = req.headers['userid'];
+      return this.productService.create(createProductDto, userId);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateProductDto: CreateProductDto): Promise<Product> {
-    return this.productService.update(id, updateProductDto);
+  async update(@Param('id') id: number, @Body() updateProductDto: CreateProductDto,@Req() req: Request): Promise<Product> {
+    try {
+      const userId = req.headers['userid'];
+      return this.productService.update(id, updateProductDto, userId);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete(':id')
   async delete(@Param('id') id: number): Promise<void> {
-    return this.productService.delete(id);
+    try {
+      return this.productService.delete(id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
 

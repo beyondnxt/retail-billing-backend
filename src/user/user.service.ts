@@ -14,19 +14,29 @@ export class UserService {
         return user;
     }
 
-    async getUsersWithRoles(): Promise<any[]> {
+    async getUsersWithRoles(page: number = 1, limit: number = 10): Promise<{ data: any[], total: number }> {
+        const skip = (page - 1) * limit;
+    
         const usersWithRoles = await this.userRepository.createQueryBuilder('user')
             .leftJoinAndSelect('user.role', 'role')
+            .skip(skip)
+            .take(limit)
             .getMany();
-        return usersWithRoles.map(user => ({
+    
+        const totalCount = await this.userRepository.createQueryBuilder('user')
+            .getCount();
+    
+        return { 
+            data: usersWithRoles.map(user => ({
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
             phoneNumber: user.phoneNumber,
             email: user.email,
-            roleId: user.role.id,
-            roleName: user.role.name
-        }));
+            roleName: user.role.name,
+            status: user.status
+        })), 
+        total: totalCount };
     }
 
     async getUsers(page: number = 1, limit: number = 10): Promise<{ data: User[]; total: number }> {

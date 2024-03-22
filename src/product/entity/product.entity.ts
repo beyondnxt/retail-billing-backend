@@ -1,5 +1,6 @@
+import { Inventory } from 'src/inventory/entity/inventory.entity';
 import { User } from 'src/user/entity/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -25,7 +26,7 @@ export class Product {
     @Column()
     printName: string;
 
-    @Column({type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     purchasePrice: number;
 
     @Column()
@@ -34,10 +35,10 @@ export class Product {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     mrp: number;
 
-    @Column({type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     retailPrice: number;
 
-    @Column({type: 'decimal', precision: 10, scale: 2 })
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     wholesalePrice: number;
 
     @Column()
@@ -78,4 +79,7 @@ export class Product {
 
     @Column()
     updatedBy: number
+
+    @OneToMany(() => Inventory, inventory => inventory.product)
+    inventory: Inventory[];
 }

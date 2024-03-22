@@ -1,5 +1,3 @@
-// product.service.ts
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,8 +11,12 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async findAll(): Promise<Product[]> {
-    return await this.productRepository.find();
+  async findAll(page: number = 1, limit: number = 10): Promise<{ data: Product[]; total: number }> {
+    const [products, total] = await this.productRepository.findAndCount({
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return { data: products, total };
   }
 
   async findById(id: number): Promise<Product> {
@@ -31,6 +33,7 @@ export class ProductService {
     const newCode = `P${(lastCode + 1).toString().padStart(3, '0')}`;
     const product = this.productRepository.create({
       ...createProductDto,
+      userId: userId,
       code: newCode,
       createdBy: userId
     });
@@ -38,14 +41,22 @@ export class ProductService {
   }
   
 
-  async update(id: number, updateProductDto: CreateProductDto): Promise<Product> {
+  async update(id: number, updateProductDto: CreateProductDto, userId: number): Promise<Product> {
     const product = await this.findById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    product.updatedBy= userId;
     Object.assign(product, updateProductDto);
     return await this.productRepository.save(product);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number): Promise<any> {
     const product = await this.findById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
     await this.productRepository.remove(product);
+    return {message: `successfully deleted id ${id}`}
   }
 }
